@@ -1,0 +1,12 @@
+{
+  "name": "fixture-react16",
+  "version": "0.0.0",
+  "private": true,
+  "dependencies": {
+    "react": "^16.14.0",
+    "react-dom": "^16.14.0"
+  },
+  "devDependencies": {
+    "vitest": "^3.0.0"
+  }
+}

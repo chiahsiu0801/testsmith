@@ -1,0 +1,8 @@
+{
+  "name": "fixture-no-react",
+  "version": "0.0.0",
+  "private": true,
+  "devDependencies": {
+    "vitest": "^3.0.0"
+  }
+}

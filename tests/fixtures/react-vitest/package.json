@@ -1,0 +1,16 @@
+{
+  "name": "fixture-react-vitest",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
+  },
+  "devDependencies": {
+    "vitest": "^3.0.0",
+    "@testing-library/react": "^16.0.0"
+  }
+}

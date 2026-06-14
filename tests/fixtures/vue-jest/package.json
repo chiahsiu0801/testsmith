@@ -1,0 +1,14 @@
+{
+  "name": "fixture-vue-jest",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "test": "jest"
+  },
+  "dependencies": {
+    "vue": "^3.4.0"
+  },
+  "devDependencies": {
+    "jest": "^29.0.0"
+  }
+}

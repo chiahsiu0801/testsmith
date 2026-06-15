@@ -42,3 +42,29 @@ export type DetectionResult =
       warnings: string[];
     }
   | { ok: false; reasons: DetectionFailure[] };
+
+/**
+ * The config slice the enumeration step consumes (see SPEC §4.1.2, §8). Defaults
+ * (e.g. `sourceRoot: 'src'`) are resolved by the config layer — enumeration is
+ * handed an already-resolved slice and never reads `.testsmith.json` itself.
+ */
+export interface CandidateConfig {
+  /** Single directory enumeration walks, project-root-relative (e.g. 'src'). */
+  sourceRoot: string;
+  /**
+   * User ignore globs, matched against the project-root-relative path (so they
+   * carry the `src/` prefix, e.g. `src/generated/**`). Purely additive: they can
+   * drop a file the built-in rules keep, never re-include one they exclude.
+   */
+  ignore: string[];
+}
+
+/**
+ * Output of the enumeration step: the scanned set of candidate source files,
+ * or a friendly failure when the source root is absent. Mirrors the
+ * discriminated-union style of {@link DetectionResult} / ProjectReadResult so
+ * the CLI can render an actionable message rather than catch a throw.
+ */
+export type EnumerationResult =
+  | { ok: true; files: string[] }
+  | { ok: false; error: 'missing-source-root'; path: string };

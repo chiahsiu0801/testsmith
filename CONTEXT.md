@@ -73,3 +73,27 @@ scanned set. Matched against the project-root-relative path (so it carries the
 `src/` prefix, e.g. `src/generated/**`). Purely _additive_: it can drop a file
 the built-in rules would have kept, but can never re-include one they exclude.
 _Avoid_: exclude pattern, filter
+
+**Decision point**:
+A syntactic construct that introduces a branch in control flow and so adds 1 to
+[[cyclomatic-complexity]]. The fixed set (the ESLint `complexity` rule's set):
+`if`/`else if`, `for`/`for-in`/`for-of`, `while`, `do-while`, each `case` label
+(not `default`), `catch`, the ternary `?:`, and each logical `&&`, `||`, `??`.
+Optional chaining (`?.`) is deliberately NOT a decision point — it is a
+null-safety idiom, not branching logic, and counting it would inflate the score
+in idiomatic React. JSX conditional rendering needs no special rule: `{c && …}`
+and `{c ? … : …}` are already a logical operator and a ternary.
+_Avoid_: branch, conditional (too broad)
+
+**Cyclomatic complexity**:
+The raw per-file complexity signal (feeds `TargetFile.complexity`, SPEC §6/§8),
+computed by the scan stage with ts-morph. Defined as: a file baseline of 1, plus
+one for every [[decision-point]] anywhere in the file (including module scope),
+plus one for every nested function unit (its baseline). Equivalently: each
+function unit is scored in isolation starting at 1 and the file total is their
+sum, with module-scope decision points folded into the file baseline. A "function
+unit" is a function declaration, function expression, arrow function, class
+method, accessor (get/set), or constructor; a React component is just a function
+and gets no special case. Consequence: every non-empty candidate scores ≥ 1, and
+function count contributes to the score (a many-function file is more to test).
+_Avoid_: complexity (bare — ambiguous with score), CC for JSX

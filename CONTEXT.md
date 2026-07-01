@@ -97,3 +97,23 @@ method, accessor (get/set), or constructor; a React component is just a function
 and gets no special case. Consequence: every non-empty candidate scores ≥ 1, and
 function count contributes to the score (a many-function file is more to test).
 _Avoid_: complexity (bare — ambiguous with score), CC for JSX
+
+**Import edge**:
+A directed runtime dependency from one [[candidate-source-file]] to another,
+extracted by the scan stage with dependency-cruiser. "Runtime" excludes
+type-only imports (`import type`); plain imports, dynamic `import()`, and
+re-exports (`export … from`) all qualify. Both endpoints must be candidates, so
+edges into `node_modules` (and any non-candidate test/config/story file) are not
+import edges at all. Edges are de-duplicated by (from, to): two imports of the
+same module from one file are a single edge.
+_Avoid_: dependency, import (bare — includes type-only and external), reference
+
+**Fan-in**:
+The raw per-file fan-in signal (feeds `TargetFile.fanIn`, SPEC §6/§8): the number
+of distinct [[candidate-source-file]]s that reach the file by an [[import-edge]].
+A leaf imported by nobody scores 0; a file imported only via type-only edges, only
+by test files, or only from `node_modules` also scores 0, because none of those
+are import edges. It is a proxy for blast radius — how much breaks if this file
+breaks — deliberately kept orthogonal to test coverage (test-file importers never
+count, so adding a test never raises a file's fan-in).
+_Avoid_: dependents, usages, references, importers (bare)

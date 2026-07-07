@@ -117,3 +117,25 @@ are import edges. It is a proxy for blast radius — how much breaks if this fil
 breaks — deliberately kept orthogonal to test coverage (test-file importers never
 count, so adding a test never raises a file's fan-in).
 _Avoid_: dependents, usages, references, importers (bare)
+
+**Churn**:
+The raw per-file churn signal (feeds `TargetFile.churn`, SPEC §6/§8): the number
+of distinct non-merge commits whose committer date falls inside the
+[[churn-window]] and that touch the [[candidate-source-file]] under its current
+path. A recency proxy for "how often this code changes" (hotspot signal). A file
+touched twice in one commit counts that commit once; merge commits never count;
+history is NOT followed across renames, so a file renamed inside the window is
+scored only from commits under its new path (a documented v1 undercount). A file
+with no commits in the window — new, never committed, or dormant — scores 0, and
+every candidate is seeded at 0 so it always carries a number.
+_Avoid_: commits (bare), edits, changes, git activity, hotspot (reserve for the
+churn×complexity interaction term, SPEC §6)
+
+**Churn window**:
+The recency horizon churn is measured over: commits from `referenceDate −
+churnWindowDays` up to `referenceDate`, where `churnWindowDays` is config (default
+180) and `referenceDate` is wall-clock now at scan time. Anchoring to now (not the
+newest commit) is deliberate — a dormant file decays toward 0 churn, which is the
+correct current-risk reading. Because the anchor moves, [[churn]] is not
+reproducible across days for the same repo; that is accepted.
+_Avoid_: since date, lookback, history depth

@@ -139,3 +139,41 @@ newest commit) is deliberate — a dormant file decays toward 0 churn, which is 
 correct current-risk reading. Because the anchor moves, [[churn]] is not
 reproducible across days for the same repo; that is accepted.
 _Avoid_: since date, lookback, history depth
+
+**Line coverage**:
+The raw per-file coverage signal (feeds `TargetFile.lineCoverage`, a `0..1` ratio,
+SPEC §6/§8): the fraction of a [[candidate-source-file]]'s executable lines that the
+project's existing test suite runs, drawn from the [[coverage-report]]. A line is
+covered iff at least one statement on it executed — istanbul's rule: a line's hit
+count is the *max* hit-count among the statements starting on that line, and
+`lineCoverage = (lines with hits) / (distinct start-lines)`. A candidate absent from
+the report — no test exercises it — scores 0, and every candidate is seeded at 0 so
+it always carries a number. A candidate with no executable lines scores 1 (nothing
+left to cover), so it sinks in the ranking instead of masquerading as maximally
+risky. Kept as the raw ratio here; the `1 − lineCoverage` gap and its weighting are
+a score-stage concern.
+_Avoid_: coverage (bare), test coverage, coverage %, covered (as a bare adjective)
+
+**Coverage report**:
+The istanbul-shape JSON coverage artifact that is [[line-coverage]]'s source: read
+from the project's existing coverage output if present, otherwise produced by running
+the suite once with coverage. Its per-file entries carry the statement map and hit
+counts the pure core turns into [[line-coverage]]. Keyed by absolute path, rebased to
+project-root-relative POSIX so it joins onto the [[scanned-set]] — the same keying
+discipline as [[churn]] and [[fan-in]]. Only [[candidate-source-file]]s draw a number
+from it; entries for tests, config, and other non-candidates are ignored. A usable
+existing report is trusted as-is and NOT checked for staleness against later source
+edits (a documented v1 limitation, akin to [[churn]]'s day-to-day drift); the escape
+hatch is to delete it and let Testsmith regenerate one.
+_Avoid_: coverage data, lcov, coverage file (bare)
+
+**Baseline coverage**:
+The single overall coverage number captured at scan time (feeds
+`ScanResult.baselineCoverage`, SPEC §8): the lines-weighted aggregate of
+[[line-coverage]] across the [[scanned-set]] — `Σ covered lines / Σ total lines` over
+[[candidate-source-file]]s only, NOT a mean of per-file percentages and NOT the
+[[coverage-report]]'s own grand total (which spans non-candidates). It is the
+"before" figure the report stage measures its coverage delta against, so it is scoped
+to exactly the files Testsmith ranks and acts on.
+_Avoid_: overall coverage (bare — implies project-wide), total coverage, coverage
+score
